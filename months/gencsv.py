@@ -18,7 +18,7 @@ import re
 
 def remove_accents(input_str):
   nkfd_form = unicodedata.normalize('NFKD', unicode(input_str))
-  return u"".join([c for c in nkfd_form if not unicodedata.combining(c)])
+  return u"".join(c for c in nkfd_form if not unicodedata.combining(c))
 
 numbers = range(1,13)
 
@@ -52,7 +52,7 @@ rows_utf8 = [
 ]
 rows_utf8.sort(key=lambda x: x[1:])
 
-out = csv.writer(sys.stdout)
+out = csv.writer(sys.stdout, lineterminator='\n')
 out.writerow(['name','number','languages'])
 out.writerows(rows_utf8)
 
