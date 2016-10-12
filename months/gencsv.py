@@ -1,5 +1,14 @@
 #!/usr/bin/python
 
+#
+# convert text files with month names to single CSV
+# each name is presented in original form and with removed accents (if there are any accents, of course)
+#
+#  files must conform to nameing convention:
+#    language[-variant].extension
+#  for example: cs.txt, cs-gen.txt, fi.txt
+#
+
 import sys
 import unicodedata
 import codecs
@@ -13,7 +22,18 @@ def remove_accents(input_str):
 
 numbers = range(1,13)
 
-result = []
+result = dict()
+def add_result(month, num, lang):
+	if month in result:
+		oldnum,oldlangs = result[month]
+		if oldnum<>num:
+			print "ERROR: duplicit month %s with numbers %d and %d" % (month, num, oldnum)
+			sys.exit(-1)
+		if not lang in oldlangs:
+			oldlangs.append(lang)
+	else:
+		result[month] = (num, [lang])
+	
 
 for fn in sys.argv[1:]:
   with codecs.open(fn, 'r', encoding='utf-8') as f:
@@ -22,15 +42,17 @@ for fn in sys.argv[1:]:
     assert len(months)==12
     for month, num in zip([m.strip() for m in months], numbers):
     	stripped = remove_accents(month)
-    	result.append([month, str(num), fn_base])
+    	add_result(month, num, fn_base)
 	if stripped<>month:
-		result.append([stripped,str(num),fn_base])
+		add_result(stripped, num, fn_base)
 
 rows_utf8 = [
-	[s.encode('utf-8') for s in row]
-	for row in result
+	[name.encode('utf-8'), num, "+".join(lang)]
+	for name, (num, lang) in result.iteritems()
 ]
+rows_utf8.sort(key=lambda x: x[1:])
 
 out = csv.writer(sys.stdout)
+out.writerow(['name','number','languages'])
 out.writerows(rows_utf8)
 
