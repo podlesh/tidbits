@@ -53,6 +53,5 @@ rows_utf8 = [
 rows_utf8.sort(key=lambda x: x[1:])
 
 out = csv.writer(sys.stdout, lineterminator='\n', delimiter=';')
-out.writerow(['name','number','languages'])
 out.writerows(rows_utf8)
 
